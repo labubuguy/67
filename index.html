@@ -62,6 +62,7 @@
       z-index: 1;
       background: linear-gradient(180deg, #222, var(--panel));
       padding: 2rem;
+      padding-top: 2.8rem; /* preserves original height */
       border-radius: 14px;
       width: 320px;
       text-align: center;
@@ -114,14 +115,14 @@
   </div>
 
   <script>
-    const PASSWORD = 'letmein'; // change this
+    const PASSWORD = 'letmein';
 
     function checkPassword() {
-      const pwd = document.getElementById('password').value;
+      const pwd = password.value;
       if (pwd === PASSWORD) {
         window.location.href = 'protected.html';
       } else {
-        document.getElementById('error').style.display = 'block';
+        error.style.display = 'block';
       }
     }
 
