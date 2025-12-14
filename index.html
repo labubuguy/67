@@ -35,6 +35,7 @@
       - Values 0–9  → '0'–'9'
       - Values 10–35 → 'A'–'Z'
     */
+
     .container {
       position: relative;
       z-index: 2;
@@ -45,13 +46,13 @@
     }
 
     .card {
-      background: rgba(20, 20, 20, 0.9);
-      padding: 2rem;
-      border-radius: 16px;
+      background: rgba(10, 10, 10, 0.95);
+      padding: 2.5rem;
+      border-radius: 18px;
       width: 100%;
       max-width: 420px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-      animation: fadeIn 1s ease;
+      box-shadow: 0 0 30px rgba(159,123,255,0.15), inset 0 0 20px rgba(159,123,255,0.05);
+      animation: fadeIn 1.2s ease;
     }
 
     textarea {
@@ -61,41 +62,27 @@
       border-radius: 10px;
       border: none;
       padding: 1rem;
-      font-size: 1rem;
-      background: #0d0d0d;
-      color: #fff;
+      font-size: 1.2rem;
+      letter-spacing: 0.3rem;
+      background: #050505;
+      color: #9f7bff;
       outline: none;
       text-align: center;
-    }
-
-    button {
-      margin-top: 1rem;
-      width: 100%;
-      padding: 0.75rem;
-      font-size: 1.1rem;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      background: linear-gradient(135deg, #6a6aff, #9f7bff);
-      color: #fff;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+      caret-color: #ffffff;
     }
 
     .output {
-      margin-top: 1rem;
-      min-height: 2rem;
+      margin-top: 1.5rem;
+      min-height: 2.5rem;
       padding: 0.75rem;
-      background: #0a0a0a;
+      background: #050505;
       border-radius: 10px;
       font-family: monospace;
+      letter-spacing: 0.25rem;
       word-break: break-word;
       text-align: center;
-      animation: glow 2s infinite alternate;
+      color: #ffffff;
+      animation: glitchGlow 1.5s infinite alternate;
     }
 
     /* Floating background numbers */
@@ -109,12 +96,8 @@
     }
 
     @keyframes float {
-      from {
-        transform: translateY(0);
-      }
-      to {
-        transform: translateY(120vh);
-      }
+      from { transform: translateY(0); }
+      to { transform: translateY(120vh); }
     }
 
     @keyframes fadeIn {
@@ -122,9 +105,10 @@
       to { opacity: 1; transform: scale(1); }
     }
 
-    @keyframes glow {
-      from { box-shadow: 0 0 5px rgba(159,123,255,0.2); }
-      to { box-shadow: 0 0 15px rgba(159,123,255,0.6); }
+    @keyframes glitchGlow {
+      0% { box-shadow: 0 0 6px rgba(159,123,255,0.2); }
+      50% { box-shadow: 0 0 18px rgba(159,123,255,0.6); }
+      100% { box-shadow: 0 0 6px rgba(159,123,255,0.2); }
     }
   </style>
 </head>
@@ -144,22 +128,12 @@
 
   <div class="container">
     <div class="card">
-      
       <textarea id="input" placeholder=""></textarea>
-      <button onclick="decode()">Decode</button>
       <div id="output" class="output"></div>
     </div>
   </div>
 
   <script>
-    /*
-      Decoding rules:
-      - Only 6 and 7 are read
-      - 6 = 0, 7 = 1
-      - Groups of 6 bits
-      - Decimal 0–9 => '0'–'9'
-      - Decimal 10–35 => 'A'–'Z'
-    */
     function decode() {
       const raw = document.getElementById('input').value;
       const cleaned = raw.replace(/[^67]/g, '');
@@ -180,7 +154,10 @@
       for (let i = 0; i < cleaned.length; i += 3) {
         const chunk = cleaned.slice(i, i + 3);
         if (chunk.length < 3) break;
-        if (!(chunk in map)) return document.getElementById('output').textContent = 'Invalid sequence';
+        if (!(chunk in map)) {
+          document.getElementById('output').textContent = '✖';
+          return;
+        }
         digits.push(map[chunk]);
       }
 
@@ -195,12 +172,14 @@
         } else if (value >= 10 && value <= 35) {
           result += String.fromCharCode(55 + value);
         } else {
-          result += '?';
+          result += '■';
         }
       }
 
       document.getElementById('output').textContent = result || '—';
     }
+
+    document.getElementById('input').addEventListener('input', decode);
   </script>
 </body>
 </html>
