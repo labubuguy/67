@@ -57,12 +57,11 @@
       100% { margin-left: 0; }
     }
 
-    /* DEPTH VARIANTS */
     .d1 { font-size: 2.2rem; opacity: 0.08; filter: blur(1.5px); }
     .d2 { font-size: 3.2rem; opacity: 0.12; filter: blur(0.8px); }
     .d3 { font-size: 4.6rem; opacity: 0.18; filter: blur(0.2px); }
 
-    /* LOGIN PANEL */
+    /* INPUT PANEL */
     .box {
       position: relative;
       z-index: 1;
@@ -77,15 +76,12 @@
       backdrop-filter: blur(2px);
     }
 
-    h2 { margin-top: 0; }
-
     input {
       width: 100%;
-      padding: 12px;
-      margin-top: 1rem;
+      padding: 14px;
       border-radius: 8px;
       border: none;
-      font-size: 1rem;
+      font-size: 1.05rem;
       outline: none;
       background: #111;
       color: #fff;
@@ -119,21 +115,19 @@
   <div class="background" id="bg"></div>
 
   <div class="box">
-    <h2>Enter Password</h2>
-    <input type="password" id="password" placeholder="Password" />
+    <input type="password" id="password" placeholder="••••••••" />
     <button onclick="checkPassword()">Enter</button>
-    <p class="error" id="error">Incorrect password</p>
+    <p class="error" id="error">Incorrect</p>
   </div>
 
   <script>
-    // ---------- SINGLE PASSWORD AUTH ----------
-    const PASSWORD = 'letmein'; // <-- change this to your shared password
+    // ---------- SINGLE PASSWORD ----------
+    const PASSWORD = 'letmein'; // change this
 
     function checkPassword() {
       const pwd = document.getElementById('password').value;
       if (pwd === PASSWORD) {
-        // successfully logged in, redirect or show content
-        alert('Access granted!'); // can replace with: window.location.href = 'protected.html';
+        window.location.href = 'protected.html';
       } else {
         document.getElementById('error').style.display = 'block';
       }
@@ -156,13 +150,13 @@
       el.style.animationDelay = `${Math.random()*-20}s, 0s`;
 
       bg.appendChild(el);
-
       setTimeout(() => el.remove(), riseDur * 1000);
     }
 
     for (let i = 0; i < 18; i++) spawnFloat();
     setInterval(() => spawnFloat(), 1200);
 
+    // ---------- TYPE REACTION ----------
     const input = document.getElementById('password');
     let lastPulse = 0;
 
