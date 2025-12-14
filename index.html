@@ -24,7 +24,6 @@
       height: 100vh;
     }
 
-    /* BACKGROUND LAYER */
     .background {
       position: fixed;
       inset: 0;
@@ -40,10 +39,7 @@
       text-shadow:
         0 0 8px rgba(76, 175, 80, 0.35),
         0 0 20px rgba(76, 175, 80, 0.25);
-      animation-name: rise, sway;
-      animation-timing-function: linear, ease-in-out;
-      animation-iteration-count: infinite, infinite;
-      will-change: transform, opacity;
+      animation: rise linear infinite, sway ease-in-out infinite;
     }
 
     @keyframes rise {
@@ -61,7 +57,6 @@
     .d2 { font-size: 3.2rem; opacity: 0.12; filter: blur(0.8px); }
     .d3 { font-size: 4.6rem; opacity: 0.18; filter: blur(0.2px); }
 
-    /* INPUT PANEL */
     .box {
       position: relative;
       z-index: 1;
@@ -101,8 +96,6 @@
       box-shadow: 0 6px 18px rgba(76,175,80,0.35);
     }
 
-    button:hover { filter: brightness(1.05); }
-
     .error {
       color: var(--error);
       margin-top: 1rem;
@@ -121,7 +114,6 @@
   </div>
 
   <script>
-    // ---------- SINGLE PASSWORD ----------
     const PASSWORD = 'letmein'; // change this
 
     function checkPassword() {
@@ -133,7 +125,6 @@
       }
     }
 
-    // ---------- FLOATING 6 & 7 SYSTEM ----------
     const bg = document.getElementById('bg');
     const DEPTHS = ['d1','d2','d3'];
 
@@ -143,30 +134,26 @@
       el.textContent = Math.random() > 0.5 ? '6' : '7';
       el.style.left = Math.random() * 100 + '%';
 
-      const riseDur = (16 + Math.random()*14) / boost;
-      const swayDur = 6 + Math.random()*6;
+      const rise = (16 + Math.random()*14) / boost;
+      const sway = 6 + Math.random()*6;
 
-      el.style.animationDuration = `${riseDur}s, ${swayDur}s`;
+      el.style.animationDuration = `${rise}s, ${sway}s`;
       el.style.animationDelay = `${Math.random()*-20}s, 0s`;
 
       bg.appendChild(el);
-      setTimeout(() => el.remove(), riseDur * 1000);
+      setTimeout(() => el.remove(), rise * 1000);
     }
 
     for (let i = 0; i < 18; i++) spawnFloat();
     setInterval(() => spawnFloat(), 1200);
 
-    // ---------- TYPE REACTION ----------
-    const input = document.getElementById('password');
     let lastPulse = 0;
-
-    input.addEventListener('input', () => {
+    password.addEventListener('input', () => {
       const now = Date.now();
       if (now - lastPulse > 120) {
         lastPulse = now;
-        for (let i = 0; i < 2; i++) spawnFloat(1.8);
-        bg.style.filter = 'blur(0.1px)';
-        setTimeout(() => bg.style.filter = 'blur(0.3px)', 120);
+        spawnFloat(1.8);
+        spawnFloat(1.8);
       }
     });
   </script>
