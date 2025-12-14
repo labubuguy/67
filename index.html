@@ -13,28 +13,10 @@
     body {
       margin: 0;
       height: 100vh;
-      background: radial-gradient(circle at top, #111 0%, #000 70%);
-      color: #fff;
+      background: radial-gradient(circle at top, #2a2400 0%, #0a0800 70%);
+      color: #ffe27a;
       overflow: hidden;
     }
-
-    /*
-      Decoding rules (NON-binary cipher):
-      - Only 6 and 7 are read
-      - Read in groups of 3 characters
-      - Mapping:
-          666 → 0
-          667 → 1
-          676 → 2
-          677 → 3
-          766 → 4
-          767 → 5
-          776 → 6
-          777 → 7
-      - Base‑8 value stream
-      - Values 0–9  → '0'–'9'
-      - Values 10–35 → 'A'–'Z'
-    */
 
     .container {
       position: relative;
@@ -46,12 +28,12 @@
     }
 
     .card {
-      background: rgba(10, 10, 10, 0.95);
+      background: rgba(20, 18, 5, 0.95);
       padding: 2.5rem;
       border-radius: 18px;
       width: 100%;
       max-width: 420px;
-      box-shadow: 0 0 30px rgba(159,123,255,0.15), inset 0 0 20px rgba(159,123,255,0.05);
+      box-shadow: 0 0 35px rgba(255, 215, 90, 0.25), inset 0 0 20px rgba(255, 215, 90, 0.08);
       animation: fadeIn 1.2s ease;
     }
 
@@ -64,35 +46,35 @@
       padding: 1rem;
       font-size: 1.2rem;
       letter-spacing: 0.3rem;
-      background: #050505;
-      color: #9f7bff;
+      background: #0e0c02;
+      color: #ffd84d;
       outline: none;
       text-align: center;
-      caret-color: #ffffff;
+      caret-color: #fff1a8;
     }
 
     .output {
       margin-top: 1.5rem;
       min-height: 2.5rem;
       padding: 0.75rem;
-      background: #050505;
+      background: #0e0c02;
       border-radius: 10px;
       font-family: monospace;
       letter-spacing: 0.25rem;
       word-break: break-word;
       text-align: center;
-      color: #ffffff;
+      color: #fff3b0;
       animation: glitchGlow 1.5s infinite alternate;
     }
 
-    /* Floating background numbers */
     .floating {
       position: absolute;
       top: -10%;
       font-size: 2rem;
-      color: rgba(255,255,255,0.08);
+      color: rgba(255, 230, 120, 0.15);
       animation: float linear infinite;
       user-select: none;
+      pointer-events: none;
     }
 
     @keyframes float {
@@ -106,23 +88,42 @@
     }
 
     @keyframes glitchGlow {
-      0% { box-shadow: 0 0 6px rgba(159,123,255,0.2); }
-      50% { box-shadow: 0 0 18px rgba(159,123,255,0.6); }
-      100% { box-shadow: 0 0 6px rgba(159,123,255,0.2); }
+      0% { box-shadow: 0 0 6px rgba(255,215,90,0.3); }
+      50% { box-shadow: 0 0 20px rgba(255,215,90,0.7); }
+      100% { box-shadow: 0 0 6px rgba(255,215,90,0.3); }
     }
   </style>
 </head>
 <body>
-  <!-- Floating 6s and 7s -->
   <script>
-    for (let i = 0; i < 30; i++) {
+    let floatingQueue = [];
+    let spawnInterval = 50; // base spawn interval in ms
+    let lastSpawnTime = Date.now();
+
+    function spawnFloating(char) {
+      const now = Date.now();
+
+      // Gradually slow spawn if too many elements
+      const activeCount = document.querySelectorAll('.floating').length;
+      const adjustedInterval = spawnInterval + Math.min(activeCount * 2, 200);
+
+      if (now - lastSpawnTime < adjustedInterval) return;
+      lastSpawnTime = now;
+
       const el = document.createElement('div');
       el.className = 'floating';
-      el.textContent = Math.random() > 0.5 ? '6' : '7';
+      el.textContent = char;
       el.style.left = Math.random() * 100 + 'vw';
-      el.style.animationDuration = 10 + Math.random() * 20 + 's';
+      el.style.animationDuration = 8 + Math.random() * 16 + 's';
       el.style.fontSize = 1 + Math.random() * 3 + 'rem';
       document.body.appendChild(el);
+
+      setTimeout(() => el.remove(), 30000);
+    }
+
+    // Ambient background numbers
+    for (let i = 0; i < 20; i++) {
+      spawnFloating(Math.random() > 0.5 ? '6' : '7');
     }
   </script>
 
@@ -134,8 +135,21 @@
   </div>
 
   <script>
+    let lastLength = 0;
+
     function decode() {
-      const raw = document.getElementById('input').value;
+      const inputEl = document.getElementById('input');
+      const raw = inputEl.value;
+
+      // Spawn floating numbers for newly typed characters
+      if (raw.length > lastLength) {
+        const newChars = raw.slice(lastLength);
+        for (const c of newChars) {
+          if (c === '6' || c === '7') spawnFloating(c);
+        }
+      }
+      lastLength = raw.length;
+
       const cleaned = raw.replace(/[^67]/g, '');
 
       const map = {
@@ -150,7 +164,6 @@
       };
 
       let digits = [];
-
       for (let i = 0; i < cleaned.length; i += 3) {
         const chunk = cleaned.slice(i, i + 3);
         if (chunk.length < 3) break;
@@ -167,13 +180,9 @@
         if (pair.length < 2) break;
         const value = pair[0] * 8 + pair[1];
 
-        if (value >= 0 && value <= 9) {
-          result += value.toString();
-        } else if (value >= 10 && value <= 35) {
-          result += String.fromCharCode(55 + value);
-        } else {
-          result += '■';
-        }
+        if (value >= 0 && value <= 9) result += value;
+        else if (value >= 10 && value <= 35) result += String.fromCharCode(55 + value);
+        else result += '■';
       }
 
       document.getElementById('output').textContent = result || '—';
