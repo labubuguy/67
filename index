@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Protected Page</title>
+  <style>
+    :root {
+      --bg: #0e0e0e;
+      --panel: #1e1e1e;
+      --accent: #4caf50;
+      --error: #ff5252;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(1200px 600px at 50% 110%, #141414, var(--bg));
+      color: #fff;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    /* BACKGROUND LAYER */
+    .background {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      filter: blur(0.3px);
+    }
+
+    .float {
+      position: absolute;
+      font-weight: 700;
+      color: rgba(180, 255, 200, 0.14);
+      text-shadow:
+        0 0 8px rgba(76, 175, 80, 0.35),
+        0 0 20px rgba(76, 175, 80, 0.25);
+      animation-name: rise, sway;
+      animation-timing-function: linear, ease-in-out;
+      animation-iteration-count: infinite, infinite;
+      will-change: transform, opacity;
+    }
+
+    @keyframes rise {
+      from { transform: translateY(110vh); }
+      to { transform: translateY(-120vh); }
+    }
+
+    @keyframes sway {
+      0% { margin-left: 0; }
+      50% { margin-left: 40px; }
+      100% { margin-left: 0; }
+    }
+
+    /* DEPTH VARIANTS */
+    .d1 { font-size: 2.2rem; opacity: 0.08; filter: blur(1.5px); }
+    .d2 { font-size: 3.2rem; opacity: 0.12; filter: blur(0.8px); }
+    .d3 { font-size: 4.6rem; opacity: 0.18; filter: blur(0.2px); }
+
+    /* LOGIN PANEL */
+    .box {
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(180deg, #222, var(--panel));
+      padding: 2rem;
+      border-radius: 14px;
+      width: 320px;
+      text-align: center;
+      box-shadow:
+        0 10px 30px rgba(0,0,0,0.7),
+        inset 0 0 0 1px rgba(255,255,255,0.04);
+      backdrop-filter: blur(2px);
+    }
+
+    h2 { margin-top: 0; }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 1rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      outline: none;
+      background: #111;
+      color: #fff;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+    }
+
+    button {
+      margin-top: 1rem;
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(76,175,80,0.35);
+    }
+
+    button:hover { filter: brightness(1.05); }
+
+    .error {
+      color: var(--error);
+      margin-top: 1rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background" id="bg"></div>
+
+  <div class="box">
+    <h2>Enter Password</h2>
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="checkPassword()">Enter</button>
+    <p class="error" id="error">Incorrect password</p>
+  </div>
+
+  <script>
+    // ---------- SINGLE PASSWORD AUTH ----------
+    const PASSWORD = 'letmein'; // <-- change this to your shared password
+
+    function checkPassword() {
+      const pwd = document.getElementById('password').value;
+      if (pwd === PASSWORD) {
+        // successfully logged in, redirect or show content
+        alert('Access granted!'); // can replace with: window.location.href = 'protected.html';
+      } else {
+        document.getElementById('error').style.display = 'block';
+      }
+    }
+
+    // ---------- FLOATING 6 & 7 SYSTEM ----------
+    const bg = document.getElementById('bg');
+    const DEPTHS = ['d1','d2','d3'];
+
+    function spawnFloat(boost = 1) {
+      const el = document.createElement('span');
+      el.className = `float ${DEPTHS[Math.floor(Math.random()*DEPTHS.length)]}`;
+      el.textContent = Math.random() > 0.5 ? '6' : '7';
+      el.style.left = Math.random() * 100 + '%';
+
+      const riseDur = (16 + Math.random()*14) / boost;
+      const swayDur = 6 + Math.random()*6;
+
+      el.style.animationDuration = `${riseDur}s, ${swayDur}s`;
+      el.style.animationDelay = `${Math.random()*-20}s, 0s`;
+
+      bg.appendChild(el);
+
+      setTimeout(() => el.remove(), riseDur * 1000);
+    }
+
+    for (let i = 0; i < 18; i++) spawnFloat();
+    setInterval(() => spawnFloat(), 1200);
+
+    const input = document.getElementById('password');
+    let lastPulse = 0;
+
+    input.addEventListener('input', () => {
+      const now = Date.now();
+      if (now - lastPulse > 120) {
+        lastPulse = now;
+        for (let i = 0; i < 2; i++) spawnFloat(1.8);
+        bg.style.filter = 'blur(0.1px)';
+        setTimeout(() => bg.style.filter = 'blur(0.3px)', 120);
+      }
+    });
+  </script>
+
+</body>
+</html>
