@@ -3,161 +3,204 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Protected Page</title>
+  <title>6–7 Decoder</title>
   <style>
-    :root {
-      --bg: #0e0e0e;
-      --panel: #1e1e1e;
-      --accent: #4caf50;
-      --error: #ff5252;
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: radial-gradient(1200px 600px at 50% 110%, #141414, var(--bg));
+      height: 100vh;
+      background: radial-gradient(circle at top, #111 0%, #000 70%);
       color: #fff;
       overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
     }
 
-    .background {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      filter: blur(0.3px);
-    }
-
-    .float {
-      position: absolute;
-      font-weight: 700;
-      color: rgba(180, 255, 200, 0.14);
-      text-shadow:
-        0 0 8px rgba(76, 175, 80, 0.35),
-        0 0 20px rgba(76, 175, 80, 0.25);
-      animation: rise linear infinite, sway ease-in-out infinite;
-    }
-
-    @keyframes rise {
-      from { transform: translateY(110vh); }
-      to { transform: translateY(-120vh); }
-    }
-
-    @keyframes sway {
-      0% { margin-left: 0; }
-      50% { margin-left: 40px; }
-      100% { margin-left: 0; }
-    }
-
-    .d1 { font-size: 2.2rem; opacity: 0.08; filter: blur(1.5px); }
-    .d2 { font-size: 3.2rem; opacity: 0.12; filter: blur(0.8px); }
-    .d3 { font-size: 4.6rem; opacity: 0.18; filter: blur(0.2px); }
-
-    .box {
+    /*
+      Decoding rules (NON-binary cipher):
+      - Only 6 and 7 are read
+      - Read in groups of 3 characters
+      - Mapping:
+          666 → 0
+          667 → 1
+          676 → 2
+          677 → 3
+          766 → 4
+          767 → 5
+          776 → 6
+          777 → 7
+      - Base‑8 value stream
+      - Values 0–9  → '0'–'9'
+      - Values 10–35 → 'A'–'Z'
+    */
+    .container {
       position: relative;
-      z-index: 1;
-      background: linear-gradient(180deg, #222, var(--panel));
-      padding: 2rem;
-      padding-top: 2.8rem; /* preserves original height */
-      border-radius: 14px;
-      width: 320px;
-      text-align: center;
-      box-shadow:
-        0 10px 30px rgba(0,0,0,0.7),
-        inset 0 0 0 1px rgba(255,255,255,0.04);
-      backdrop-filter: blur(2px);
+      z-index: 2;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    input {
+    .card {
+      background: rgba(20, 20, 20, 0.9);
+      padding: 2rem;
+      border-radius: 16px;
       width: 100%;
-      padding: 14px;
-      border-radius: 8px;
+      max-width: 420px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      animation: fadeIn 1s ease;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      resize: none;
+      border-radius: 10px;
       border: none;
-      font-size: 1.05rem;
-      outline: none;
-      background: #111;
+      padding: 1rem;
+      font-size: 1rem;
+      background: #0d0d0d;
       color: #fff;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+      outline: none;
+      text-align: center;
     }
 
     button {
       margin-top: 1rem;
       width: 100%;
-      padding: 12px;
-      font-size: 1rem;
+      padding: 0.75rem;
+      font-size: 1.1rem;
+      border-radius: 10px;
       border: none;
-      border-radius: 8px;
-      background: var(--accent);
-      color: white;
       cursor: pointer;
-      box-shadow: 0 6px 18px rgba(76,175,80,0.35);
+      background: linear-gradient(135deg, #6a6aff, #9f7bff);
+      color: #fff;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .error {
-      color: var(--error);
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    }
+
+    .output {
       margin-top: 1rem;
-      display: none;
+      min-height: 2rem;
+      padding: 0.75rem;
+      background: #0a0a0a;
+      border-radius: 10px;
+      font-family: monospace;
+      word-break: break-word;
+      text-align: center;
+      animation: glow 2s infinite alternate;
+    }
+
+    /* Floating background numbers */
+    .floating {
+      position: absolute;
+      top: -10%;
+      font-size: 2rem;
+      color: rgba(255,255,255,0.08);
+      animation: float linear infinite;
+      user-select: none;
+    }
+
+    @keyframes float {
+      from {
+        transform: translateY(0);
+      }
+      to {
+        transform: translateY(120vh);
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes glow {
+      from { box-shadow: 0 0 5px rgba(159,123,255,0.2); }
+      to { box-shadow: 0 0 15px rgba(159,123,255,0.6); }
     }
   </style>
 </head>
 <body>
+  <!-- Floating 6s and 7s -->
+  <script>
+    for (let i = 0; i < 30; i++) {
+      const el = document.createElement('div');
+      el.className = 'floating';
+      el.textContent = Math.random() > 0.5 ? '6' : '7';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.animationDuration = 10 + Math.random() * 20 + 's';
+      el.style.fontSize = 1 + Math.random() * 3 + 'rem';
+      document.body.appendChild(el);
+    }
+  </script>
 
-  <div class="background" id="bg"></div>
-
-  <div class="box">
-    <input type="password" id="password" placeholder="••••••••" />
-    <button onclick="checkPassword()">Enter</button>
-    <p class="error" id="error">Incorrect</p>
+  <div class="container">
+    <div class="card">
+      
+      <textarea id="input" placeholder=""></textarea>
+      <button onclick="decode()">Decode</button>
+      <div id="output" class="output"></div>
+    </div>
   </div>
 
   <script>
-    const PASSWORD = 'letmein';
+    /*
+      Decoding rules:
+      - Only 6 and 7 are read
+      - 6 = 0, 7 = 1
+      - Groups of 6 bits
+      - Decimal 0–9 => '0'–'9'
+      - Decimal 10–35 => 'A'–'Z'
+    */
+    function decode() {
+      const raw = document.getElementById('input').value;
+      const cleaned = raw.replace(/[^67]/g, '');
 
-    function checkPassword() {
-      const pwd = password.value;
-      if (pwd === PASSWORD) {
-        window.location.href = 'protected.html';
-      } else {
-        error.style.display = 'block';
+      const map = {
+        '666': 0,
+        '667': 1,
+        '676': 2,
+        '677': 3,
+        '766': 4,
+        '767': 5,
+        '776': 6,
+        '777': 7
+      };
+
+      let digits = [];
+
+      for (let i = 0; i < cleaned.length; i += 3) {
+        const chunk = cleaned.slice(i, i + 3);
+        if (chunk.length < 3) break;
+        if (!(chunk in map)) return document.getElementById('output').textContent = 'Invalid sequence';
+        digits.push(map[chunk]);
       }
-    }
 
-    const bg = document.getElementById('bg');
-    const DEPTHS = ['d1','d2','d3'];
+      let result = '';
+      for (let i = 0; i < digits.length; i += 2) {
+        const pair = digits.slice(i, i + 2);
+        if (pair.length < 2) break;
+        const value = pair[0] * 8 + pair[1];
 
-    function spawnFloat(boost = 1) {
-      const el = document.createElement('span');
-      el.className = `float ${DEPTHS[Math.floor(Math.random()*DEPTHS.length)]}`;
-      el.textContent = Math.random() > 0.5 ? '6' : '7';
-      el.style.left = Math.random() * 100 + '%';
-
-      const rise = (16 + Math.random()*14) / boost;
-      const sway = 6 + Math.random()*6;
-
-      el.style.animationDuration = `${rise}s, ${sway}s`;
-      el.style.animationDelay = `${Math.random()*-20}s, 0s`;
-
-      bg.appendChild(el);
-      setTimeout(() => el.remove(), rise * 1000);
-    }
-
-    for (let i = 0; i < 18; i++) spawnFloat();
-    setInterval(() => spawnFloat(), 1200);
-
-    let lastPulse = 0;
-    password.addEventListener('input', () => {
-      const now = Date.now();
-      if (now - lastPulse > 120) {
-        lastPulse = now;
-        spawnFloat(1.8);
-        spawnFloat(1.8);
+        if (value >= 0 && value <= 9) {
+          result += value.toString();
+        } else if (value >= 10 && value <= 35) {
+          result += String.fromCharCode(55 + value);
+        } else {
+          result += '?';
+        }
       }
-    });
+
+      document.getElementById('output').textContent = result || '—';
+    }
   </script>
-
 </body>
 </html>
